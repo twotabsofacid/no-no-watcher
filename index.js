@@ -170,30 +170,68 @@ functions.http('main', (req, res) => {
             // Loop through these and check
             // if we've already sent a text this inning
             for (const noHitterInProgress of liveNoNosData) {
-              // Home team stuff...
-              if (
-                noHitterInProgress.liveData.linescore.teams.home.hits <= maxHits
-              ) {
-                const { data, error } = await supabase
-                  .from('MLB Teams')
-                  .select('*')
-                  .eq('id', noHitterInProgress.gameData.teams.home.id);
-                // If we've already marked this as an active no hitter
-                if (data[0].active_no_hitter) {
-                  // Check if the current inning is not equal to the texted inning
-                  if (
-                    noHitterInProgress.liveData.linescore.currentInning !==
-                    data[0].texted_inning
-                  ) {
-                    console.log(
-                      'what inning we think it is, vs the inning we texted...'
+              // Home and away team stuff...
+              const teamOptions = ['home', 'away'];
+              teamOptions.forEach(async (teamDesignation) => {
+                if (
+                  noHitterInProgress.liveData.linescore.teams[teamDesignation]
+                    .hits <= maxHits
+                ) {
+                  const { data, error } = await supabase
+                    .from('MLB Teams')
+                    .select('*')
+                    .eq(
+                      'id',
+                      noHitterInProgress.gameData.teams[teamDesignation].id
                     );
-                    console.log(
-                      noHitterInProgress.liveData.linescore.currentInning,
+                  // If we've already marked this as an active no hitter
+                  if (data[0].active_no_hitter) {
+                    // Check if the current inning is not equal to the texted inning
+                    if (
+                      noHitterInProgress.liveData.linescore.currentInning !==
                       data[0].texted_inning
-                    );
-                    // We haven't sent a text this inning, so send one
-                    // and update the db to reflect this
+                    ) {
+                      console.log(
+                        'what inning we think it is, vs the inning we texted...'
+                      );
+                      console.log(
+                        noHitterInProgress.liveData.linescore.currentInning,
+                        data[0].texted_inning
+                      );
+                      // We haven't sent a text this inning, so send one
+                      // and update the db to reflect this
+                      await sendTextMessage(noHitterInProgress, 'home');
+                      try {
+                        await supabase
+                          .from('MLB Teams')
+                          .update({
+                            texted_inning:
+                              noHitterInProgress.liveData.linescore
+                                .currentInning,
+                            active_no_hitter: true
+                          })
+                          .eq(
+                            'id',
+                            noHitterInProgress.gameData.teams[teamDesignation]
+                              .id
+                          )
+                          .select();
+                      } catch (err) {
+                        console.log(err);
+                      }
+                    } else {
+                      console.log(
+                        'active no hitter going on, but already sent a text this inning'
+                      );
+                      console.log(
+                        activeNoHitterStringConstructor(
+                          noHitterInProgress,
+                          'home'
+                        )
+                      );
+                    }
+                  } else {
+                    // mark it as an active no hitter, and send a text
                     await sendTextMessage(noHitterInProgress, 'home');
                     try {
                       await supabase
@@ -203,104 +241,17 @@ functions.http('main', (req, res) => {
                             noHitterInProgress.liveData.linescore.currentInning,
                           active_no_hitter: true
                         })
-                        .eq('id', noHitterInProgress.gameData.teams.home.id)
+                        .eq(
+                          'id',
+                          noHitterInProgress.gameData.teams[teamDesignation].id
+                        )
                         .select();
                     } catch (err) {
                       console.log(err);
                     }
-                  } else {
-                    console.log(
-                      'active no hitter going on, but already sent a text this inning'
-                    );
-                    console.log(
-                      activeNoHitterStringConstructor(
-                        noHitterInProgress,
-                        'home'
-                      )
-                    );
-                  }
-                } else {
-                  // mark it as an active no hitter, and send a text
-                  await sendTextMessage(noHitterInProgress, 'home');
-                  try {
-                    await supabase
-                      .from('MLB Teams')
-                      .update({
-                        texted_inning:
-                          noHitterInProgress.liveData.linescore.currentInning,
-                        active_no_hitter: true
-                      })
-                      .eq('id', noHitterInProgress.gameData.teams.home.id)
-                      .select();
-                  } catch (err) {
-                    console.log(err);
                   }
                 }
-              }
-              // Away team stuff...
-              if (
-                noHitterInProgress.liveData.linescore.teams.away.hits <= maxHits
-              ) {
-                const { data, error } = await supabase
-                  .from('MLB Teams')
-                  .select('*')
-                  .eq('id', noHitterInProgress.gameData.teams.away.id);
-                // If we've already marked this as an active no hitter
-                if (data[0].active_no_hitter) {
-                  // Check if the current inning is not equal to the texted inning
-                  if (
-                    noHitterInProgress.liveData.linescore.currentInning !==
-                    data[0].texted_inning
-                  ) {
-                    console.log(
-                      'what inning we think it is, vs the inning we texted...'
-                    );
-                    console.log(
-                      noHitterInProgress.liveData.linescore.currentInning,
-                      data[0].texted_inning
-                    );
-                    // We haven't sent a text this inning, so send one
-                    // and update the db to reflect this
-                    await sendTextMessage(noHitterInProgress, 'away');
-                    try {
-                      await supabase
-                        .from('MLB Teams')
-                        .update({
-                          texted_inning:
-                            noHitterInProgress.liveData.linescore.currentInning,
-                          active_no_hitter: true
-                        })
-                        .eq('id', noHitterInProgress.gameData.teams.away.id)
-                        .select();
-                    } catch (err) {
-                      console.log(err);
-                    }
-                  } else {
-                    console.log(
-                      'active no hitter going on, but already sent a text this inning'
-                    );
-                    console.log(
-                      activeNoHitterStringConstructor(noHitterInProgress)
-                    );
-                  }
-                } else {
-                  // mark it as an active no hitter, and send a text
-                  await sendTextMessage(noHitterInProgress, 'away');
-                  try {
-                    await supabase
-                      .from('MLB Teams')
-                      .update({
-                        texted_inning:
-                          noHitterInProgress.liveData.linescore.currentInning,
-                        active_no_hitter: true
-                      })
-                      .eq('id', noHitterInProgress.gameData.teams.away.id)
-                      .select();
-                  } catch (err) {
-                    console.log(err);
-                  }
-                }
-              }
+              });
             }
           } else {
             console.log('No no-hitters currently in progress');
