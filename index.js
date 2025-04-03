@@ -2,6 +2,7 @@ import 'dotenv/config';
 import axios from 'axios';
 import twilio from 'twilio';
 import { createClient } from '@supabase/supabase-js';
+import functions from '@google-cloud/functions-framework';
 
 // Variables
 const minInnings = 1;
@@ -117,7 +118,7 @@ const activeNoHitterStringConstructor = (gameObj) => {
  * Run Everything
  * Our biiiiig beautiful boy
  */
-const runEverything = () => {
+functions.http('main', (req, res) => {
   // Get all live game IDs
   getLiveGameIDs()
     .then(async (data) => {
@@ -329,10 +330,14 @@ const runEverything = () => {
       } else {
         console.log('No live games in progress');
       }
+      res.status(200).send({
+        message: 'Success'
+      });
     })
-    .catch((err) => {
-      console.log('ERROR', err);
+    .catch((error) => {
+      console.log('ERROR', error);
+      res.status(400).send({
+        error
+      });
     });
-};
-
-runEverything();
+});

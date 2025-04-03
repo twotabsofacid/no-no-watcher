@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "npx functions-framework --target=main",
     "dev": "nodemon index.js"
   },
   "keywords": [],
@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/functions-framework": "^3.5.1",
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
