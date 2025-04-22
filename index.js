@@ -5,9 +5,9 @@ import { createClient } from '@supabase/supabase-js';
 import functions from '@google-cloud/functions-framework';
 
 // Variables
-const minInnings = 1;
+const minInnings = 4;
 // For testing... for real should be 0
-const maxHits = 0;
+const maxHits = 10;
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
@@ -76,26 +76,27 @@ const sendTextMessage = (gameObj, homeOrAwayString) => {
       homeOrAwayString
     );
     console.log(
-      'Text message sent not sent bc of lack of funds, but it should have been!'
+      'No hitter text message not sent bc of lack of funds, but it should have been!'
     );
     console.log(noHitterText);
-    client.messages
-      .create({
-        body: noHitterText,
-        to: process.env.PERSONAL_NUMBER, // Text your number
-        from: process.env.TWILIO_NUMBER // From a valid Twilio number
-      })
-      .then((message) => {
-        console.log('Text message sent!');
-        console.log(message.sid, noHitterText);
-        resolve({
-          messageID: message.sid,
-          noHitterText
-        });
-      })
-      .catch((err) => {
-        reject(err);
-      });
+    resolve(true);
+    // client.messages
+    //   .create({
+    //     body: noHitterText,
+    //     to: process.env.PERSONAL_NUMBER, // Text your number
+    //     from: process.env.TWILIO_NUMBER // From a valid Twilio number
+    //   })
+    //   .then((message) => {
+    //     console.log('Text message sent!');
+    //     console.log(message.sid, noHitterText);
+    //     resolve({
+    //       messageID: message.sid,
+    //       noHitterText
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     reject(err);
+    //   });
   });
 };
 
@@ -109,7 +110,7 @@ const sendEndOfNoHitterText = (teamsObject, homeOrAwayString) => {
   return new Promise((resolve, reject) => {
     const noNoHitterText = `The ${teamsObject[homeOrAwayString].name} (${homeOrAwayString}) gave up a hit and no longer have a no hitter going.`;
     console.log(
-      'Text message not sent bc we are out of funds, but it should have been!'
+      'End of no hitter text message not sent bc we are out of funds, but it should have been!'
     );
     console.log(noNoHitterText);
     resolve(true);
@@ -260,6 +261,7 @@ functions.http('main', (req, res) => {
                   // mark it as an active no hitter, and send a text
                   await sendTextMessage(noHitterInProgress, 'home');
                   try {
+                    console.log('we are trying supabase shit...');
                     await supabase
                       .from('MLB Teams')
                       .update({
@@ -320,6 +322,7 @@ functions.http('main', (req, res) => {
                   }
                 } else {
                   // mark it as an active no hitter, and send a text
+                  console.log('CASE 4');
                   await sendTextMessage(noHitterInProgress, 'away');
                   try {
                     await supabase
@@ -373,6 +376,7 @@ functions.http('main', (req, res) => {
                   .select();
                 // Send a text message saying this
                 // [TODO abstract sendTextMessage function to account for different strings]
+                console.log('should have sent end of no hitter text!');
                 await sendEndOfNoHitterText(
                   hitterInProgress.gameData.teams,
                   'away'

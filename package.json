@@ -4,12 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "npx functions-framework --target=main",
-    "dev": "nodemon index.js"
+    "dev": "npx functions-framework --target=main"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "description": "",
   "dependencies": {
     "@google-cloud/functions-framework": "^3.5.1",
