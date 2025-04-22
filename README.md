@@ -2,9 +2,9 @@
 
 <div align="center">
   <img src="./public/baseball.png" width="360" style="display: block; margin: 0 auto">
-  <h3 align="center">No No Watcher</h3>
+  <h3 align="center">Swing batter, batter</h3>
   <p align="center">
-    A real-time MLB no-hitter monitoring system that sends you a text when an active no-hitter is in progress. For now, a no-hitter in progress is defined as a team not giving up any hits after the fifth inning.
+    A real-time MLB no-hitter monitoring system that sends you a text when an active no-hitter is in progress.
   </p>
 </div>
 
@@ -94,8 +94,10 @@ The system currently has the following configurable parameters:
 
 ## Future Improvements
 
-- [ ] Deploy to gcp with cloud scheduler to run every 5 minutes during normal MLB gametimes
-- [ ] Adjust no-hitter criteria to production standards (0 hits after 6th inning)
+- Deploy to gcp with cloud scheduler to run every 5 minutes during normal MLB gametimes
+- Cloud scheduler to run `/clean` every day before we trigger the above
+- Clean up code, double check it's actually working
+- Create mock endpoints with data for testing
 
 ## Contributing
 

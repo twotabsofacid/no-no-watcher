@@ -5,9 +5,9 @@ import { createClient } from '@supabase/supabase-js';
 import functions from '@google-cloud/functions-framework';
 
 // Variables
-const minInnings = 4;
-// For testing... for real should be 0
-const maxHits = 10;
+const minInnings = 6;
+// For testing purposes, make this higher
+const maxHits = 0;
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
