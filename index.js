@@ -376,7 +376,7 @@ functions.http('main', (req, res) => {
                   .select();
                 // Send a text message saying this
                 // [TODO abstract sendTextMessage function to account for different strings]
-                console.log('should have sent end of no hitter text!');
+                console.log('Should send end of no hitter text for home team');
                 await sendEndOfNoHitterText(
                   hitterInProgress.gameData.teams,
                   'away'
@@ -394,9 +394,10 @@ functions.http('main', (req, res) => {
                   .select();
                 // Send a text message saying this
                 // [TODO abstract sendTextMessage function to account for different strings]
+                console.log('Should send end of no hitter text for away team');
                 await sendEndOfNoHitterText(
                   hitterInProgress.gameData.teams,
-                  'away'
+                  'home'
                 );
               }
             }
