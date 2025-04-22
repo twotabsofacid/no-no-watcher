@@ -41,7 +41,7 @@ Before you begin, ensure you have:
 1. Clone the repository:
 
    ```bash
-   git clone [your-repo-url]
+   git clone git@github.com:twotabsofacid/no-no-watcher.git
    cd no-no-watcher
    ```
 
@@ -63,7 +63,23 @@ Before you begin, ensure you have:
 
 ## Usage
 
+This is a meant to run on a GCP cloud run instance, with entrypoint `main`. When it's running in the cloud a scheduler will ping it every five minutes to trigger. When running locally, do
+
+```bash
+curl -X GET 127.0.0.1:8080
+```
+
+to trigger the function.
+
+Every day there's a scheduled cleanup of the database, which you can trigger through
+
+```bash
+curl -X GET 127.0.0.1:8080/clean
+```
+
 ### Development
+
+To run locally, do:
 
 ```bash
 npm run dev

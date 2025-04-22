@@ -416,22 +416,3 @@ functions.http('main', (req, res) => {
       });
   }
 });
-
-functions.http('clean', async (req, res) => {
-  supabase
-    .from('MLB Teams')
-    .select('*')
-    .then(async ({ data, error }) => {
-      console.log('data an error', data, error);
-      for (const datum of data) {
-        await supabase
-          .from('MLB Teams')
-          .update({ active_no_hitter: false, texted_inning: 0 })
-          .eq('id', datum.id)
-          .select();
-      }
-    });
-  res.status(200).send({
-    message: 'Cleaned!'
-  });
-});
